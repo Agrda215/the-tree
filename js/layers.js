@@ -5,6 +5,7 @@ addLayer("a", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
+      autoupg:false,
     }},
     color: "#4BDC13",
     requires: new Decimal(5), // Can be a function that takes requirement increases into account
@@ -16,7 +17,12 @@ addLayer("a", {
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
       if(hasUpgrade("a", 22)) mult = mult.times(upgradeEffect("a", 22))
+        if(hasUpgrade("b", 13)) mult = mult.times(upgradeEffect("b", 13))
+        if(hasUpgrade("b", 14)) mult = mult.times(upgradeEffect("b", 14))
+       if(hasUpgrade("b", 22)) mult = mult.pow(10)
+      if(hasUpgrade("b", 23)) mult = mult.pow(4)
         mult = mult.times(player.graph.points.sqrt().div(3).add(1))
+        mult = mult.times(player.b.number.boost)
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -24,6 +30,17 @@ addLayer("a", {
     },
     row: 0, // Row the layer is in on the tree (0 is the first row)
     layerShown(){return true},
+  automate() {
+    if (hasUpgrade("b", 15) && player.a.autoupg) {
+      buyUpgrade(this.layer, 11)
+      buyUpgrade(this.layer, 12)
+      buyUpgrade(this.layer, 13)
+      buyUpgrade(this.layer, 14)
+      buyUpgrade(this.layer, 15)
+      buyUpgrade(this.layer, 21)
+      buyUpgrade(this.layer, 22)
+    }
+  },
   clickables: {
     11: {
         display() {return "<h2>+50K a Point</h2>"},
@@ -113,6 +130,11 @@ addLayer("b", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
+      number:{
+        resource:new Decimal(1),
+        mulitipler:new Decimal(1),
+        boost:new Decimal(1)
+      }
     }},
     color: "#55FF00",
     requires: new Decimal(1e9), // Can be a function that takes requirement increases into account
@@ -130,6 +152,19 @@ addLayer("b", {
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     layerShown(){return hasUpgrade("a", 22) || player.b.best.gt(0)},
+  automate() {
+    player.b.number.resource = player.b.number.resource.times(player.b.number.mulitipler)
+    player.b.number.mulitipler = buyableEffect("b", 11)
+    player.b.number.boost = player.b.number.resource.sqrt()
+    
+    if (hasUpgrade("b", 23)) {
+      player.b.points = player.b.points.add(1)
+    }
+    
+    if (hasUpgrade("b", 24)) {
+      player.b.points = player.b.points.add(4)
+    }
+  },
     upgrades:{
       11:{
         title:"Tau gain",
@@ -149,7 +184,88 @@ addLayer("b", {
     },
     effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
       },
-    }
+      13:{
+        title:"Tau a gain",
+        description:"Tau your a gain.",
+        cost:new Decimal(4),
+        effect() {
+        return new Decimal(Math.PI * 2)
+    },
+    effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+      },
+      14:{
+        title:"Tha't Overpower",
+        description:"x1e4 a gain.",
+        cost:new Decimal(5),
+        effect() {
+        return new Decimal(10000)
+    },
+    effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" }, // Add formatting to the effect
+      },
+      15:{
+        title:"Auto = Upg",
+        description:"Unlock Automation for A Upgrades.",
+        cost:new Decimal(7),
+      },
+      21:{
+        title:"Something new?",
+        description:"Unlock new tab.",
+        cost:new Decimal(9),
+      },
+      22:{
+        title:"whT",
+        description:"what is ^10",
+        cost:new Decimal(1000),
+      },
+      23:{
+        title:"whT",
+        description:"what is ^4 and auto gain.",
+        cost:new Decimal(7500),
+      },
+      24:{
+        title:"whT",
+        description:"what is ^4 and gained by 4.",
+        cost:new Decimal(25000),
+      },
+    },
+  buyables: {
+    11: {
+        cost(x) { return new Decimal(10).add(x.mul(5)) },
+        display() { return "<h2>Increase Number gain." },
+        canAfford() { return player[this.layer].points.gte(this.cost()) },
+        buy() {
+            player[this.layer].points = player[this.layer].points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+      effect(x) {
+        let l = new Decimal.pow(2, x)
+        return l
+      }
+    },
+},
+    tabFormat: {
+    "Main": {
+        content: [
+         "main-display",
+         "prestige-button",
+         "upgrades"
+        ],
+    },
+    "Number": {
+        content: [
+         "main-display",
+         "prestige-button",
+          ["display-text",
+        function() { return 'Get Number is ' + player.b.number.resource + ", Translated to a " + player.b.number.boost + " from a gain." },
+        { "color": "yellow", "font-size": "30px", "font-family": "Consolas" }],
+          ["display-text",
+        function() { return "All This Mulitipler geted by " + player.b.number.mulitipler },
+        { "color": "yellow", "font-size": "30px", "font-family": "Consolas" }],
+         "buyables"
+        ],
+      unlocked() {return hasUpgrade("b", 21)}
+    },
+}
 })
 
 addLayer("graph", {
@@ -174,4 +290,38 @@ addLayer("graph", {
 }
 },
 )
+
+addLayer("ab", {
+    startData() { return {
+        unlocked: true,
+    }},
+    color: "#C0C0C0",
+    symbol: "⚙",
+    row: "side",
+    position: 1,
+    name:"Autobuyers",
+    tooltip: "Automation",
+    layerShown() {return hasUpgrade("b", 14)},
+    tabFormat: [["display-text",
+    function() { return '<h2>Automation</h2>' }], "clickables"],
+    clickables: {
+        11: {
+            title: "a Upgrades",
+            display(){
+                let text = "Locked"
+                if (hasUpgrade("b", 15)) text = "Off"
+                if (hasUpgrade("b", 15) && player.a.autoupg) text = "On"
+                return text
+            },
+            unlocked() {return true},
+            canClick() {return hasUpgrade("b", 15)},
+            onClick() { player.a.autoupg = !player.a.autoupg },
+            style: {"background-color"(){
+                let color = "#666666"
+                if (player.a.auto1upg) color = "#808080"
+                return color
+            }},
+        },
+    },
+})
 

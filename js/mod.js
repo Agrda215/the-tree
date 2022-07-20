@@ -13,11 +13,17 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.1",
-	name: "Start",
+	num: "0.0.2",
+	name: "Numbers Atricles",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+   <h3>v0.0.2 - Numbers Atricles (Automation, Number) and unlock new layer.</h3><br>
+   - Added 1 Automation<br>
+   - Added 2 Tabs<br>
+   - Added 7 Upgrades<br>
+   - Added 1 Buyable<br>
+   - Endgame at 1e5.<br>
 	<h3>v0.0.1 - Start</h3><br>
 		- Added 2 Layer<br>
     - Added 9 Upgrades<br>
@@ -70,7 +76,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.b.points.gte(2)
+	return player.b.points.gte(1e5)
 }
 
 
