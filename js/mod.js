@@ -13,17 +13,22 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.2",
-	name: "Numbers Atricles",
+	num: "0.1.0",
+	name: "C & Fanny Cool Why?",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+   <h3>v0.1.0 - C & Fanny Cool Why? (Letter 3 Layer, Fanny) and unlock new layer.</h3><br>
+   - Added 1 Clickable<br>
+   - Added ? Upgrades<br>
+   - Added 2 Buyable<br>
+   - Endgame at 25,000 c.<br>
    <h3>v0.0.2 - Numbers Atricles (Automation, Number) and unlock new layer.</h3><br>
    - Added 1 Automation<br>
    - Added 2 Tabs<br>
    - Added 7 Upgrades<br>
    - Added 1 Buyable<br>
-   - Endgame at 1e5.<br>
+   - Endgame at 1e5 b.<br>
 	<h3>v0.0.1 - Start</h3><br>
 		- Added 2 Layer<br>
     - Added 9 Upgrades<br>
@@ -60,8 +65,10 @@ function getPointGen() {
   if(hasUpgrade("a", 21)) gain = gain.times(upgradeEffect("a", 21))
   if(hasUpgrade("b", 11)) gain = gain.times(upgradeEffect("b", 11))
   if(hasUpgrade("b", 12)) gain = gain.times(upgradeEffect("b", 12))
+  if(hasUpgrade("c", 11)) gain = gain.times(1e4)
   gain = gain.times(player.a.points.add(1).sqrt())
   gain = gain.times(new Decimal.pow(2, player.b.points))
+  gain = gain.times(new Decimal.pow(256, player.c.points))
 	return gain
 }
 
@@ -71,7 +78,7 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
-  "Points += 2<sup>b</sup> &times; √(a + 1)"
+  "Points += 256<sup>c</sup> &times; 2<sup>b</sup> &times; √(a + 1)"
 ]
 
 // Determines when the game "ends"

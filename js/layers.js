@@ -21,6 +21,9 @@ addLayer("a", {
         if(hasUpgrade("b", 14)) mult = mult.times(upgradeEffect("b", 14))
        if(hasUpgrade("b", 22)) mult = mult.pow(10)
       if(hasUpgrade("b", 23)) mult = mult.pow(4)
+      if(hasUpgrade("b", 24)) mult = mult.pow(4)
+      if(hasUpgrade("b", 25)) mult = mult.pow(6)
+      if(hasUpgrade("c", 12)) mult = mult.times(1e3)
         mult = mult.times(player.graph.points.sqrt().div(3).add(1))
         mult = mult.times(player.b.number.boost)
         return mult
@@ -154,7 +157,7 @@ addLayer("b", {
     layerShown(){return hasUpgrade("a", 22) || player.b.best.gt(0)},
   automate() {
     player.b.number.resource = player.b.number.resource.times(player.b.number.mulitipler)
-    player.b.number.mulitipler = buyableEffect("b", 11)
+    player.b.number.mulitipler = buyableEffect("b", 11).mul(buyableEffect("b", 12)).mul(buyableEffect("b", 13))
     player.b.number.boost = player.b.number.resource.sqrt()
     
     if (hasUpgrade("b", 23)) {
@@ -163,6 +166,18 @@ addLayer("b", {
     
     if (hasUpgrade("b", 24)) {
       player.b.points = player.b.points.add(4)
+    }
+    
+    if (hasUpgrade("b", 25)) {
+      player.b.points = player.b.points.add(245)
+    }
+    
+    if (hasUpgrade("c", 13)) {
+      player.b.points = player.b.points.add(new Decimal(1e6).sub(1))
+    }
+    
+    if (hasUpgrade("c", 15)) {
+      player.b.points = player.b.points.add(new Decimal(1.5e7))
     }
   },
     upgrades:{
@@ -227,6 +242,11 @@ addLayer("b", {
         description:"what is ^4 and gained by 4.",
         cost:new Decimal(25000),
       },
+      25:{
+        title:"Base 3",
+        description:"what is ^6 and gained by 245 and unlock new layer.",
+        cost:new Decimal(1e5),
+      },
     },
   buyables: {
     11: {
@@ -239,6 +259,32 @@ addLayer("b", {
         },
       effect(x) {
         let l = new Decimal.pow(2, x)
+        return l
+      }
+    },
+    12: {
+        cost(x) { return new Decimal(1e6).add(x.mul(5)) },
+        display() { return "<h2>Increase Number gain." },
+        canAfford() { return player[this.layer].points.gte(this.cost()) },
+        buy() {
+            player[this.layer].points = player[this.layer].points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+      effect(x) {
+        let l = new Decimal.pow(32768, x)
+        return l
+      }
+    },
+    13: {
+        cost(x) { return new Decimal(1e15).add(x.mul(5)) },
+        display() { return "<h2>Increase Number gain." },
+        canAfford() { return player[this.layer].points.gte(this.cost()) },
+        buy() {
+            player[this.layer].points = player[this.layer].points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+      effect(x) {
+        let l = new Decimal.pow(1e25, x)
         return l
       }
     },
@@ -268,6 +314,61 @@ addLayer("b", {
 }
 })
 
+addLayer("c", {
+    name: "letter 3", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "c", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    branches:["b"],
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0),
+    }},
+    color: "#AAAAAA",
+    requires: new Decimal(1e6), // Can be a function that takes requirement increases into account
+    resource: "c", // Name of prestige currency
+    baseResource: "b", // Name of resource prestige is based on
+    baseAmount() {return player.b.points}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 0.2, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        mult = mult.times(player.fan.points.sqrt().div(3).add(1))
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 2, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return hasUpgrade("b", 25) || player.c.best.gt(0)},
+    upgrades:{
+      11:{
+        title:"BIG GAIN",
+        description:"x1e4 point gain.",
+        cost:new Decimal(1)
+      },
+      12:{
+        title:"A Million at thousand?",
+        description:"x1e3 a gain.",
+        cost:new Decimal(1)
+      },
+      13:{
+        title:"GG +999,999 GG",
+        description:"wow disk disk.",
+        cost:new Decimal(2)
+      },
+      14:{
+        title:"Something new?",
+        description:"unlock new side.",
+        cost:new Decimal(125)
+      },
+      15:{
+        title:"+15,000,000 b gain.",
+        description:"go = power?",
+        cost:new Decimal(1e3)
+      },
+    }
+})
+
 addLayer("graph", {
     startData() { return {
         unlocked: true,
@@ -282,6 +383,29 @@ addLayer("graph", {
     clickables: {
     11: {
         display() {return "<h2>Graph Increase"},
+        canClick() {return true},
+        onClick() {
+          player[this.layer].points = player[this.layer].points.add(1)
+        }
+    }
+}
+},
+)
+
+addLayer("fan", {
+    startData() { return {
+        unlocked: true,
+        points: new Decimal(0),
+    }},
+    color: "orange",
+    effectDescription() {return "multiplying c gain by "+format(player[this.layer].points.sqrt().div(3).add(1))},
+    resource: "Fanny", 
+    symbol: "F",
+    row: "side",
+    layerShown(){return hasUpgrade("c", 14)},
+    clickables: {
+    11: {
+        display() {return "<h2>Fanny Increase"},
         canClick() {return true},
         onClick() {
           player[this.layer].points = player[this.layer].points.add(1)
