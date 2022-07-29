@@ -8,16 +8,22 @@ let modInfo = {
 	discordName: "",
 	discordLink: "",
 	initialStartPoints: new Decimal (10), // Used for hard resets and new players
-	offlineLimit: 1,  // In hours
+	offlineLimit: 2,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1.0",
-	name: "C & Fanny Cool Why?",
+	num: "0.1.1",
+	name: "Mlestones Are Sources",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+   <h3>v0.1.1 - Milestones Are Sources</h3><br>
+   - Added 2 Milestones<br>
+   - Fixed Offline Limit to 2 Hours.<br>
+   - Added ? Upgrades<br>
+   - Added 2 Buyable<br>
+   - Endgame at 1e11 (or 10^11) c.<br>
    <h3>v0.1.0 - C & Fanny Cool Why? (Letter 3 Layer, Fanny) and unlock new layer.</h3><br>
    - Added 1 Clickable<br>
    - Added ? Upgrades<br>
@@ -83,7 +89,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.c.points.gte(2.5e4)
+	return player.c.points.gte(1e11)
 }
 
 
@@ -97,7 +103,7 @@ var backgroundStyle = {
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(3600) // Default is 1 hour which is just arbitrarily large
+	return(7200) // Default is 1 hour which is just arbitrarily large
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,

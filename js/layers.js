@@ -179,6 +179,18 @@ addLayer("b", {
     if (hasUpgrade("c", 15)) {
       player.b.points = player.b.points.add(new Decimal(1.5e7))
     }
+    
+    if (hasUpgrade("c", 21)) {
+      player.b.points = player.b.points.mul(1.01)
+    }
+    
+    if (hasUpgrade("c", 22)) {
+      player.b.points = player.b.points.add(new Decimal(1e18))
+    }
+    
+    if (hasUpgrade("c", 24)) {
+      player.b.points = player.b.points.add(new Decimal(1e27))
+    }
   },
     upgrades:{
       11:{
@@ -332,6 +344,9 @@ addLayer("c", {
     exponent: 0.2, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+        if(hasMilestone("c", 0)) mult = mult.times(10)
+        if(hasUpgrade("c", 25)) mult = mult.times(6)
+        if(hasMilestone("c", 1)) mult = mult.times(1.8)
         mult = mult.times(player.fan.points.sqrt().div(3).add(1))
         return mult
     },
@@ -366,7 +381,49 @@ addLayer("c", {
         description:"go = power?",
         cost:new Decimal(1e3)
       },
-    }
+      21:{
+        title:"Gain 1% b gain.",
+        description:"what so?",
+        cost:new Decimal(2.75e4)
+      },
+      22:{
+        title:"+1e18 b gain.",
+        description:"go = power?",
+        cost:new Decimal(1e5)
+      },
+      23:{
+        title:"Passive generation of c.",
+        description:"by five what what?",
+        cost:new Decimal(7.5e5)
+      },
+      24:{
+        title:"+1e27 speed???",
+        description:"AAAAA",
+        cost:new Decimal(4e6)
+      },
+      25:{
+        title:"Mulitiply c gain by 3.75",
+        description:"a be so.",
+        cost:new Decimal(1e9)
+      },
+    },
+    passiveGeneration() {
+        passivebase = 0
+        if (hasUpgrade("c", 23)) passivebase += 5
+        return passivebase
+    },
+  milestones: {
+    0: {
+        requirementDescription: "10,000,000 c",
+        effectDescription: "Mulitiplyings x10 c gain.",
+        done() { return player.c.points.gte(1e7) }
+    },
+     1: {
+        requirementDescription: "4e10 c",
+        effectDescription: "Gain 80% c gain.",
+        done() { return player.c.points.gte(4e10) }
+    },
+}
 })
 
 addLayer("graph", {
@@ -440,6 +497,23 @@ addLayer("ab", {
             unlocked() {return true},
             canClick() {return hasUpgrade("b", 15)},
             onClick() { player.a.autoupg = !player.a.autoupg },
+            style: {"background-color"(){
+                let color = "#666666"
+                if (player.a.auto1upg) color = "#808080"
+                return color
+            }},
+        },
+      12: {
+            title: "b Upgrades",
+            display(){
+                let text = "Locked"
+                if (hasUpgrade("b", 15)) text = "Off"
+                if (hasUpgrade("b", 15) && player.b.autoupg) text = "On"
+                return text
+            },
+            unlocked() {return true},
+            canClick() {return hasUpgrade("b", 15)},
+            onClick() { player.b.autoupg = !player.b.autoupg },
             style: {"background-color"(){
                 let color = "#666666"
                 if (player.a.auto1upg) color = "#808080"
